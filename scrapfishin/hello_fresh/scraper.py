@@ -9,24 +9,35 @@ from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import NoSuchElementException
 from bs4 import BeautifulSoup
 import pydantic
-import bs4
 
+from scrapfishin.hello_fresh.parser import (
+    extract_separated_tags, parse_next_ingredient, parse_next_nutrient_value
+)
+from scrapfishin.hello_fresh import BASE_URL
 from scrapfishin.schema import Recipe
 from scrapfishin.http import Chrome
 
-# TODO: ... refactor each provider into their own directory
-#
-# /scrapfishin
-# └─ /hello_fresh
-#    ├─ __init__.py          (things that are common immutables like BASE_URL)
-#    ├─ scraper.py
-#    ├─ parser.py
-#    └─ unlisted_recipes.py  (mostly spice blends)
-#
 
-BASE_URL = 'https://www.hellofresh.com'
 log = logging.getLogger(__name__)
 
+
+# TODO:
+#
+# The scraping section here is a bit ugly. We are not intelligently caching
+# results, and instead just sticking the LRU cache on anything that takes some
+# time.... this is cool in a Jupyter environment where we're tinkering with
+# the parsers, but no bueno in prod. Additionally, we could make this faster
+# with asyncio/concurrent.futures.. let's consider doing so and establishing
+# a sane rate limit for the scraper.
+#
+# We could probably abstract getting the page from interacting with the page.
+# This would go into the scrapfishin.http module probably. This would go
+# hand-in-hand with the issue above.
+#
+# Finally, .datatize_recipe and .scrape should probably see some refactoring.
+# .scrape is an integration-method, so it makes sense for it to do a lot, but
+# .datatize_recipe is a bit of scrape, a bit of parse.
+#
 
 def handle_promo_popup(actions: ActionChains) -> None:
     """
@@ -123,114 +134,6 @@ def get_recipes(slug: str) -> List[str]:
     return list(set([img.find_previous('a')['href'] for img in food_images]))
 
 
-def parse_next_ingredient(tag: bs4.Tag) -> bs4.Tag:
-    """
-    Traverse the DOM to find the next ingredient Tag.
-
-    Parameters
-    ----------
-    tag : bs4.Tag
-        container tag for the Ingredients section
-
-    Yields
-    ------
-    ingredient : bs4.Tag
-        tag of the next ingredient in the section
-
-    Returns
-    -------
-    None
-    """
-    while True:
-        tag = tag.find_next()
-
-        if tag.text == 'Not included in your delivery':
-            return
-
-        if tag.name != 'img':
-            continue
-
-        yield tag.find_next().find_next()
-
-
-def parse_next_nutrient_value(tag: bs4.Tag) -> bs4.Tag:
-    """
-    Traverse the DOM to find the next nutrient Tag.
-
-    Parameters
-    ----------
-    tag : bs4.Tag
-        container tag for the Nutrion Values section
-
-    Yields
-    ------
-    value : bs4.Tag
-        tag of the next value in the section
-
-    Returns
-    -------
-    None
-    """
-    while True:
-        tag = tag.find_next()
-
-        if tag.text.startswith('Due to the different suppliers'):
-            return
-
-        if tag.name != 'span':
-            continue
-
-        if tag.text.endswith('depending on your region.'):
-            continue
-
-        if any(_ in tag.text.lower() for _ in ['nutri', 'serving', 'arrow']):
-            continue
-
-        # we arrive at a Nutritional Fact (e.g. Calories, Fat, Protein, ...)
-        # the next Tag will be its value, so the two tags together would
-        # express something like "Protein 40 g"
-        yield tag
-
-        # this is why we toss in a secondary find_next, before hitting the next
-        # loop iteration
-        tag = tag.find_next()
-
-#
-#
-#
-
-
-def extract_separated_tags(tag: bs4.element.Tag, *, section) -> list:
-    """
-    Pull a list of tags from the DOM.
-
-    The "Tags" and "Allergens" DOM wrappers have the same exact
-    formatting.
-
-    Parameters
-    ----------
-    tag : bs4.element.Tag
-        identifier tag for the section of a recipe
-
-    Returns
-    -------
-    tags : list
-        list of tags, possibly empty
-    """
-    tags = []
-
-    if tag is None:
-        return tags
-
-    if section in ['tag', 'allergen']:
-        tags = tag.find_next().text.split('•')
-
-    if section == 'utensil':
-        tags = tag.find_next('span', text='•').parent.parent.text.split('•')[1:]
-
-    return list(set(tags))
-
-
 @ft.lru_cache()
 def datatize_recipe(slug: str) -> dict:
     """
@@ -290,7 +193,7 @@ def datatize_recipe(slug: str) -> dict:
 
 def scrape() -> list:
     """
-    Run through the website
+    Run through Hello Fresh collecting Recipes.
     """
     recipes = []
 
@@ -311,7 +214,6 @@ def scrape() -> list:
                     recipes.remove(existing)
                     r['cuisines'].extend([c.dict() for c in existing.dict()['cuisines']])
 
-                print(r)
                 r = Recipe(**r)
                 recipes.append(r)
             except pydantic.ValidationError as e:
@@ -324,3 +226,4 @@ def scrape() -> list:
 
     log.info(f'{len(recipes)} recipes found!')
     return recipes
+
