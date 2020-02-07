@@ -100,10 +100,35 @@ _steak_spice_blend = Recipe.parse_obj({
     ]
 })
 
+_mexican_spice_blend = Recipe.parse_obj({
+    **_base,
+    'title': 'Mexican Spice Blend',
+    'ingredients': [
+        {'food': 'chili powder', 'amount': '6 teaspoon'},
+        {'food': 'cumin', 'amount': '3 teaspoon'},
+        {'food': 'salt', 'amount': '1.5 teaspoon'},
+        {'food': 'ground black pepper', 'amount': '1.5 teaspoon'},
+        {'food': 'paprika', 'amount': '1 teaspoon'},
+        {'food': 'red pepper flakes', 'amount': '0.5 teaspoon'},
+        {'food': 'oregano', 'amount': '0.5 teaspoon'},
+        {'food': 'garlic powder', 'amount': '0.5 teaspoon'},
+        {'food': 'onion powder', 'amount': '0.5 teaspoon'},
+        {'food': 'ground cayenne pepper', 'amount': '0.25 teaspoon'}
+    ]
+})
+
+
 # TODO: further reading:
 # https://www.reddit.com/r/hellofresh/comments/bawnby/hello_fresh_diy_spice_blends/
 #
 # SELECT i.food
 #   FROM ingredient AS i
 #  WHERE i.food LIKE '%spice%'
-_mexican_spice_blend
+#
+# za'atar spice blend
+# mediterranean spice blend
+# ranch spice
+# fajita spice blend
+# enchilada spice blend
+# taco spice blend
+# cajun spice blend
