@@ -21,7 +21,7 @@ from scrapfishin.http import Chrome
 log = logging.getLogger(__name__)
 
 
-# TODO:
+# TODO
 #
 # The scraping section here is a bit ugly. We are not intelligently caching
 # results, and instead just sticking the LRU cache on anything that takes some
