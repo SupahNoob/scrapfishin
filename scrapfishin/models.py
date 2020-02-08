@@ -1,6 +1,5 @@
 from sqlalchemy.orm import relationship
 from sqlalchemy import Column, ForeignKey, Integer, Numeric, String
-# import sqlalchemy as sa
 
 from scrapfishin.database import Base
 
@@ -17,15 +16,13 @@ _fk_kw = {
 
 class PrettyModelMixin:
     """
-    A mixin class for prettifying Model objects.
+    Just a mixin class for prettifying Model objects.
     """
     def __repr__(self):
         return f'<[dbo.{self.__tablename__}]>'
 
 
 class Recipe(Base, PrettyModelMixin):
-    """
-    """
     __tablename__ = 'recipe'
 
     id = Column(Integer, primary_key=True)
@@ -41,16 +38,14 @@ class Recipe(Base, PrettyModelMixin):
     tags = relationship('Tag', secondary='recipe_tag', backref='recipes', **_rel_kw)
     utensils = relationship('Utensil', secondary='recipe_utensil', backref='recipes', **_rel_kw)
     ingredients = relationship('RecipeIngredientAmount', back_populates='recipe', **_rel_kw)
-    # instructions
-    # nutritional_facts
+    # TODO: instructions MTM with Recipe
+    # TODO: nutritional_facts MTM with Recipe (note: aggregated as a whole for each recipe, not shown per-ingredient :[)
 
     def __repr__(self):
         return f'<[dbo.{self.__tablename__} ID={self.id}]>'
 
 
 class Allergy(Base, PrettyModelMixin):
-    """
-    """
     __tablename__ = 'allergy'
 
     id = Column(Integer, primary_key=True)
@@ -58,8 +53,6 @@ class Allergy(Base, PrettyModelMixin):
 
 
 class Cuisine(Base, PrettyModelMixin):
-    """
-    """
     __tablename__ = 'cuisine'
 
     id = Column(Integer, primary_key=True)
@@ -67,8 +60,6 @@ class Cuisine(Base, PrettyModelMixin):
 
 
 class Tag(Base, PrettyModelMixin):
-    """
-    """
     __tablename__ = 'tag'
 
     id = Column(Integer, primary_key=True)
@@ -76,8 +67,6 @@ class Tag(Base, PrettyModelMixin):
 
 
 class Utensil(Base, PrettyModelMixin):
-    """
-    """
     __tablename__ = 'utensil'
 
     id = Column(Integer, primary_key=True)
@@ -85,8 +74,6 @@ class Utensil(Base, PrettyModelMixin):
 
 
 class Ingredient(Base, PrettyModelMixin):
-    """
-    """
     __tablename__ = 'ingredient'
 
     id = Column(Integer, primary_key=True)
@@ -97,8 +84,6 @@ class Ingredient(Base, PrettyModelMixin):
 
 
 class Measurement(Base, PrettyModelMixin):
-    """
-    """
     __tablename__ = 'measurement'
 
     id = Column(Integer, primary_key=True)
@@ -106,11 +91,10 @@ class Measurement(Base, PrettyModelMixin):
 
 
 #
-# Associations
+# Associations / Bridge Tables / XREF
 #
 
 class RecipeIngredientAmount(Base, PrettyModelMixin):
-
     __tablename__ = 'recipe_ingredient_amount'
 
     recipe_id = Column(Integer, ForeignKey('recipe.id', **_fk_kw), primary_key=True)
@@ -123,8 +107,6 @@ class RecipeIngredientAmount(Base, PrettyModelMixin):
 
 
 class RecipeAllergy(Base, PrettyModelMixin):
-    """
-    """
     __tablename__ = 'recipe_allergy'
 
     recipe_id = Column(Integer, ForeignKey('recipe.id', **_fk_kw), primary_key=True)
@@ -132,8 +114,6 @@ class RecipeAllergy(Base, PrettyModelMixin):
 
 
 class RecipeCuisine(Base, PrettyModelMixin):
-    """
-    """
     __tablename__ = 'recipe_cuisine'
 
     recipe_id = Column(Integer, ForeignKey('recipe.id', **_fk_kw), primary_key=True)
@@ -141,8 +121,6 @@ class RecipeCuisine(Base, PrettyModelMixin):
 
 
 class RecipeTag(Base, PrettyModelMixin):
-    """
-    """
     __tablename__ = 'recipe_tag'
 
     recipe_id = Column(Integer, ForeignKey('recipe.id', **_fk_kw), primary_key=True)
@@ -150,8 +128,6 @@ class RecipeTag(Base, PrettyModelMixin):
 
 
 class RecipeUtensil(Base, PrettyModelMixin):
-    """
-    """
     __tablename__ = 'recipe_utensil'
 
     recipe_id = Column(Integer, ForeignKey('recipe.id', **_fk_kw), primary_key=True)

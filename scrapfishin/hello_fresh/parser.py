@@ -73,12 +73,8 @@ def parse_next_nutrient_value(tag: bs4.Tag) -> bs4.Tag:
         # loop iteration
         tag = tag.find_next()
 
-#
-#
-#
 
-
-def extract_separated_tags(tag: bs4.element.Tag, *, section) -> list:
+def extract_separated_tags(tag: bs4.element.Tag, *, section: str) -> list:
     """
     Pull a list of tags from the DOM.
 
@@ -89,6 +85,9 @@ def extract_separated_tags(tag: bs4.element.Tag, *, section) -> list:
     ----------
     tag : bs4.element.Tag
         identifier tag for the section of a recipe
+
+    section : str
+        part of the recipe webpage to navigate through
 
     Returns
     -------

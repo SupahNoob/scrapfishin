@@ -1,9 +1,20 @@
 from scrapfishin.schema import Recipe
 
+__all__ = [
+    'tuscan_heat_spice',
+    'blackening_spice',
+    'smoky_cinammon_paprika_spice',
+    'fall_harvest_spice_blend',
+    'southwest_spice_blend',
+    'tunisian_spice_blend',
+    'steak_spice_blend',
+    'mexican_spice_blend',
+    'zaatar_spice_blend'
+]
 
 _base = {
     'source': 'Hello Fresh',
-    'prep_time': 5,
+    'prep_time': 10,
     'difficulty': 'level 1'
 }
 
@@ -36,7 +47,7 @@ blackening_spice = Recipe.parse_obj({
     ]
 })
 
-_smoky_cinammon_paprika_spice = Recipe.parse_obj({
+smoky_cinammon_paprika_spice = Recipe.parse_obj({
     **_base,
     'title': 'Smoky Cinnamon Paprika Spice',
     'ingredients': [
@@ -50,7 +61,7 @@ _smoky_cinammon_paprika_spice = Recipe.parse_obj({
     ]
 })
 
-_fall_harvest_spice_blend = Recipe.parse_obj({
+fall_harvest_spice_blend = Recipe.parse_obj({
     **_base,
     'title': 'Fall Harvest Spice Blend',
     'ingredients': [
@@ -61,7 +72,7 @@ _fall_harvest_spice_blend = Recipe.parse_obj({
     ]
 })
 
-_southwest_spice_blend = Recipe.parse_obj({
+southwest_spice_blend = Recipe.parse_obj({
     **_base,
     'title': 'Southwest Spice Blend',
     'ingredients': [
@@ -71,7 +82,7 @@ _southwest_spice_blend = Recipe.parse_obj({
     ]
 })
 
-_tunisian_spice_blend = Recipe.parse_obj({
+tunisian_spice_blend = Recipe.parse_obj({
     **_base,
     'title': 'Tunisian Spice Blend',
     'ingredients': [
@@ -87,7 +98,7 @@ _tunisian_spice_blend = Recipe.parse_obj({
     ]
 })
 
-_steak_spice_blend = Recipe.parse_obj({
+steak_spice_blend = Recipe.parse_obj({
     **_base,
     'title': 'Steak Spice Blend',
     'ingredients': [
@@ -100,7 +111,7 @@ _steak_spice_blend = Recipe.parse_obj({
     ]
 })
 
-_mexican_spice_blend = Recipe.parse_obj({
+mexican_spice_blend = Recipe.parse_obj({
     **_base,
     'title': 'Mexican Spice Blend',
     'ingredients': [
@@ -117,7 +128,7 @@ _mexican_spice_blend = Recipe.parse_obj({
     ]
 })
 
-_zaatar_spice_blend = Recipe.parse_obj({
+zaatar_spice_blend = Recipe.parse_obj({
     **_base,
     'title': 'Za\'atar Spice Blend',
     'ingredients': [

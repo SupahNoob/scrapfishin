@@ -1,68 +1,58 @@
-from typing import Union, Dict, List
+from typing import Dict, List
 
 from pydantic import BaseModel, HttpUrl, validator
 
 
-class OrmModeModel(BaseModel):
+class LoweredStr(str):
+    """
+    Ensure database collation sanity by ignoring case.
+    """
+    @classmethod
+    def __get_validators__(cls):
+        yield cls.validate
 
+    @classmethod
+    def validate(cls, v) -> str:
+        try:
+            s = v.lower()
+        except AttributeError:
+            raise TypeError(f'"{v}" is not of type str, got: {type(v)}')
+        return cls(s)
+
+    def __repr__(self):
+        return f'LoweredStr({super().__repr__()})'
+
+
+class Base(BaseModel):
+    """
+    Enable ORM Mode on all instances.
+
+    Further reading:
+      https://pydantic-docs.helpmanual.io/usage/models/#orm-mode-aka-arbitrary-class-instances
+    """
     class Config:
         orm_mode = True
 
 
-class Allergy(OrmModeModel):
-    allergen: str
-
-    @validator('allergen')
-    def str_lower(cls, v) -> str:
-        """
-        Ensure database sanity by ignoring case.
-        """
-        return v.lower()
+class Allergy(Base):
+    allergen: LoweredStr
 
 
-class Cuisine(OrmModeModel):
-    region: str
-
-    @validator('region')
-    def str_lower(cls, v) -> str:
-        """
-        Ensure database sanity by ignoring case.
-        """
-        return v.lower()
+class Cuisine(Base):
+    region: LoweredStr
 
 
-class Tag(OrmModeModel):
-    descriptor: str
-
-    @validator('descriptor')
-    def str_lower(cls, v) -> str:
-        """
-        Ensure database sanity by ignoring case.
-        """
-        return v.lower()
+class Tag(Base):
+    descriptor: LoweredStr
 
 
-class Utensil(OrmModeModel):
-    item: str
-
-    @validator('item')
-    def str_lower(cls, v) -> str:
-        """
-        Ensure database sanity by ignoring case.
-        """
-        return v.lower()
+class Utensil(Base):
+    item: LoweredStr
 
 
-class Ingredient(OrmModeModel):
-    food: str
+class Ingredient(Base):
+    food: LoweredStr
     amount: str
-
-    @validator('food')
-    def str_lower(cls, v) -> str:
-        """
-        Ensure database sanity by ignoring case.
-        """
-        return v.lower()
 
     @validator('amount', pre=True)
     def unicode_replace(cls, v) -> str:
@@ -87,27 +77,20 @@ class Ingredient(OrmModeModel):
         return v
 
 
-class Recipe(OrmModeModel):
+class Recipe(Base):
     source: str
     glamor_shot_url: HttpUrl
     title: str
     prep_time: int
-    difficulty: str
+    difficulty: LoweredStr
     tags: List[Tag]
     allergies: List[Allergy]
+    feeds: int = 2
     ingredients: List[Ingredient]
     utensils: List[Utensil]
     instructions_url: HttpUrl
-    nutrition: Dict[str, str]       # TODO: model for NutritionalFact (name, amount, unit) ?
+    nutrition: Dict[str, str]  # TODO: model for NutritionalFact (name, amount, unit) ?
     cuisines: List[Cuisine]
-    # TODO: feeds: int = 2   # the amount of people the recipe is designed for
-
-    @validator('difficulty')
-    def str_lower(cls, v) -> str:
-        """
-        Ensure database sanity by ignoring case.
-        """
-        return v.lower()
 
     @validator('prep_time', pre=True)
     def hours_to_minutes(cls, v) -> int:

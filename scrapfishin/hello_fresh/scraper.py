@@ -23,19 +23,14 @@ log = logging.getLogger(__name__)
 
 # TODO
 #
-# The scraping section here is a bit ugly. We are not intelligently caching
-# results, and instead just sticking the LRU cache on anything that takes some
-# time.... this is cool in a Jupyter environment where we're tinkering with
-# the parsers, but no bueno in prod. Additionally, we could make this faster
-# with asyncio/concurrent.futures.. let's consider doing so and establishing
-# a sane rate limit for the scraper.
+# Remove caching after we hit v1.0.0 - no need to cache in prod since each URL
+# is unlikely to be called multiple times within a single run.
 #
-# We could probably abstract getting the page from interacting with the page.
-# This would go into the scrapfishin.http module probably. This would go
-# hand-in-hand with the issue above.
+# We could make this faster with asyncio/concurrent.futures.. let's consider
+# doing so and establishing a sane rate limit for the scraper.
 #
 # Finally, .datatize_recipe and .scrape should probably see some refactoring.
-# .scrape is an integration-method, so it makes sense for it to do a lot, but
+# .scrape is an integration method, so it makes sense for it to do a lot, but
 # .datatize_recipe is a bit of scrape, a bit of parse.
 #
 
@@ -52,6 +47,8 @@ def handle_promo_popup(actions: ActionChains) -> None:
     actions : ActionChains
         object used to automate low level interactions
     """
+    # TODO: utilize explicit wait.until() to minimize of time spent here..
+    #   https://selenium-python.readthedocs.io/waits.html#explicit-waits
     time.sleep(7)
     actions.send_keys(Keys.ESCAPE).perform()
     time.sleep(1)
@@ -77,8 +74,9 @@ def get_world_cuisines(slug: str='recipes') -> List[str]:
         a list of all world cuisines pages
     """
     with Chrome('--ignore-certificate-errors', '--incognito') as driver:
+        driver.get(f'{BASE_URL}/{slug}')
+
         with ActionChains(driver) as actions:
-            driver.get(f'{BASE_URL}/{slug}')
             handle_promo_popup(actions)
 
             # scroll down, allowing the loading of Javascript which generates
@@ -191,14 +189,28 @@ def datatize_recipe(slug: str) -> dict:
     return data
 
 
-def scrape() -> list:
+def scrape() -> List[Recipe]:
     """
     Run through Hello Fresh collecting Recipes.
+
+    This method will take a considerable amount of time to run as it is
+    scraping almost every recipe listed on Hello Fresh.
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    recipes : list
+        all known recipes on Hello Fresh
     """
-    recipes = []
+    from scrapfishin.hellofresh.unlisted_recipes import __all__
+
+    recipes = [*__all__]
 
     for world_slug in get_world_cuisines():
-        cuisine = re.search('.*\/(.*)-.*', world_slug).group(1)
+        cuisine = re.search(r'.*\/(.*)-.*', world_slug).group(1)
         log.info(f'scraping {cuisine.title()} recipes')
 
         for i, recipe_slug in enumerate(get_recipes(world_slug[1:]), start=1):
@@ -220,10 +232,6 @@ def scrape() -> list:
                 log.error(f'url: {recipe_slug}\n{e}')
             except AttributeError as e:
                 log.error(f'missing data on page: {recipe_slug} {e}')
-        
-            if len(recipes) > 2:
-                return recipes
 
     log.info(f'{len(recipes)} recipes found!')
     return recipes
-
