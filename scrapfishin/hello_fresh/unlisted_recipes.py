@@ -117,6 +117,19 @@ _mexican_spice_blend = Recipe.parse_obj({
     ]
 })
 
+_zaatar_spice_blend = Recipe.parse_obj({
+    **_base,
+    'title': 'Za\'atar Spice Blend',
+    'ingredients': [
+        {'food': 'toasted sesame seeds', 'amount': '3 teaspoon'},
+        {'food': 'salt', 'amount': '0.5 teaspoon'},
+        {'food': 'ground', 'amount': 'cumin 0.5 teaspoon'},
+        {'food': 'dried', 'amount': 'thyme 3 teaspoon'},
+        {'food': 'oregano', 'amount': '3 teaspoon'},
+        {'food': 'marjoram', 'amount': '3 teaspoon'},
+        {'food': 'sumac', 'amount': '9 teaspoon'}
+    ]
+})
 
 # TODO: further reading:
 # https://www.reddit.com/r/hellofresh/comments/bawnby/hello_fresh_diy_spice_blends/
@@ -125,7 +138,6 @@ _mexican_spice_blend = Recipe.parse_obj({
 #   FROM ingredient AS i
 #  WHERE i.food LIKE '%spice%'
 #
-# za'atar spice blend
 # mediterranean spice blend
 # ranch spice
 # fajita spice blend
