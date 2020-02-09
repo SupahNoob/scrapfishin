@@ -163,6 +163,15 @@ def datatize_recipe(slug: str) -> dict:
     steps_tag   = soup.find('a', {'data-test-id': 'recipeDetailFragment.instructions.downloadLink'})
     nutrition_tag   = soup.find('div', {'data-test-id': 'recipeDetailFragment.nutrition-values'})
 
+    # TODO consider adding a unit converter .. examples like below will cause
+    # a lot of irregularities in the database, especially when combining
+    # recipes into other forms (e.g. like a shopping list)
+    #
+    # 1 can of tomato sauce = 1 box = 13.76 ounce
+    # 1 sprig of <herb> = 0.25 ounce
+    # 1 bunch of <herb> = 2.00 ounce
+    # 1 tablespoon = 3 teaspoon
+    #
     data = {
         'source': 'Hello Fresh',
         'glamor_shot_url': soup.find('img', {'alt': title_tag.text})['src'],
@@ -174,7 +183,7 @@ def datatize_recipe(slug: str) -> dict:
         'ingredients': [
             {
                 'food': tag.find_next().text,
-                'amount': tag.text
+                'amount': tag.text  # TODO: hello_fresh_unit_converter(tag.text)
             }
             for tag in parse_next_ingredient(ingredients_tag)
         ],
