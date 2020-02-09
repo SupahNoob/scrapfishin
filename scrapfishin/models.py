@@ -37,7 +37,7 @@ class Recipe(Base, PrettyModelMixin):
     cuisines = relationship('Cuisine', secondary='recipe_cuisine', backref='recipes', **_rel_kw)
     tags = relationship('Tag', secondary='recipe_tag', backref='recipes', **_rel_kw)
     utensils = relationship('Utensil', secondary='recipe_utensil', backref='recipes', **_rel_kw)
-    ingredients = relationship('RecipeIngredientAmount', back_populates='recipe', **_rel_kw)
+    ingredient_amounts = relationship('RecipeIngredientAmount', back_populates='recipe', **_rel_kw)
     # TODO: instructions MTM with Recipe
     # TODO: nutritional_facts MTM with Recipe (note: aggregated as a whole for each recipe, not shown per-ingredient :[)
 
@@ -103,7 +103,8 @@ class RecipeIngredientAmount(Base, PrettyModelMixin):
     amount = Column(Numeric(10, 2, asdecimal=False))
 
     ingredient = relationship('Ingredient', back_populates='recipes')
-    recipe = relationship('Recipe', back_populates='ingredients')
+    recipe = relationship('Recipe', back_populates='ingredient_amounts')
+    measurement = relationship('Measurement', backref='recipe_ingredients')
 
 
 class RecipeAllergy(Base, PrettyModelMixin):
