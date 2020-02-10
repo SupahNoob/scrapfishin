@@ -43,3 +43,22 @@ def grocery_list(
             seen.append(f'{amount} {unit}')
 
     return '\n'.join(sorted(seen, key=lambda i: i.split(' of ')[-1]))
+
+
+def random_recipe(s: sa.orm.Session, *, n: int=1) -> Iterable(Recipe):
+    """
+    Get `n` random recipes.
+
+    Parameters
+    ----------
+    s : sqlalchemy.orm.Session
+        database session to bind objects
+
+    n : int = [default: 1]
+        number of recipes to return
+    """
+    q = s.query(Recipe)\
+         .order_by(sa.func.random())\
+         .limit(n)
+
+    return iter(q.all())
