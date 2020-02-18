@@ -1,12 +1,7 @@
-from typing import Dict, List
+from typing import Optional, List
 
 from pydantic import BaseModel, HttpUrl, validator
 
-
-# TODO
-#   Need to Understand
-#     https://pydantic-docs.helpmanual.io/usage/models/#orm-mode-aka-arbitrary-class-instances
-#
 
 class LoweredStr(str):
     """
@@ -57,7 +52,17 @@ class Utensil(Base):
 
 class Ingredient(Base):
     food: LoweredStr
-    amount: str
+    # parent_recipe: Recipe
+
+
+class Measurement(Base):
+    unit: LoweredStr
+
+
+class IngredientAmount(Base):
+    ingredient: Ingredient
+    measurement: Measurement
+    amount: str  # but really, this is a float
 
     @validator('amount', pre=True)
     def unicode_replace(cls, v) -> str:
@@ -83,19 +88,19 @@ class Ingredient(Base):
 
 
 class Recipe(Base):
-    source: str
-    glamor_shot_url: HttpUrl
     title: str
     prep_time: int
     difficulty: LoweredStr
-    tags: List[Tag]
-    allergies: List[Allergy]
-    feeds: int = 2
-    ingredients: List[Ingredient]
-    utensils: List[Utensil]
-    instructions_url: HttpUrl
-    nutrition: Dict[str, str]  # TODO: model for NutritionalFact (name, amount, unit) ?
-    cuisines: List[Cuisine]
+    source: str
+    glamor_shot_url: Optional[HttpUrl]
+    instructions_url: Optional[HttpUrl]
+    allergies: Optional[List[Allergy]]
+    cuisines: Optional[List[Cuisine]]
+    tags: Optional[List[Tag]]
+    utensils: Optional[List[Utensil]]
+    ingredient_amounts: List[IngredientAmount]
+    # TODO instructions
+    # TODO nutrictional_facts: List[NutritionalFact]
 
     @validator('prep_time', pre=True)
     def hours_to_minutes(cls, v) -> int:

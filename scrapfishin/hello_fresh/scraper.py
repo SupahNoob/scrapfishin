@@ -180,15 +180,16 @@ def datatize_recipe(slug: str) -> dict:
         'difficulty': f'{diff_tag.find_next().text}',
         'tags': [{'descriptor': t} for t in extract_separated_tags(tags_tag, section='tag')],
         'allergies': [{'allergen': a} for a in extract_separated_tags(allergy_tag, section='allergen')],
-        'ingredients': [
+        'ingredient_amounts': [
             {
-                'food': tag.find_next().text,
-                'amount': tag.text  # TODO: hello_fresh_unit_converter(tag.text)
+                'ingredient': {'food': tag.find_next().text},
+                'amount': tag.text.split(' ')[0],
+                'measurement': {'unit': tag.text.split(' ')[1]}
             }
             for tag in parse_next_ingredient(ingredients_tag)
         ],
         'utensils': [{'item': u} for u in extract_separated_tags(utensil_tag, section='utensil')],
-        'instructions_url': steps_tag['href'],
+        'instructions_url': f'{BASE_URL}/{slug}' if steps_tag is None else steps_tag['href'],
         'nutrition': {
             tag.text.lower(): tag.find_next().text
             for tag in parse_next_nutrient_value(nutrition_tag)
@@ -214,7 +215,7 @@ def scrape() -> List[Recipe]:
     recipes : list
         all known recipes on Hello Fresh
     """
-    from scrapfishin.hellofresh.unlisted_recipes import __all__
+    from scrapfishin.hello_fresh.unlisted_recipes import __all__
 
     recipes = [*__all__]
 
