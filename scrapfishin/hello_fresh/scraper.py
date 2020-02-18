@@ -13,7 +13,7 @@ import pydantic
 from scrapfishin.hello_fresh.parser import (
     extract_separated_tags, parse_next_ingredient, parse_next_nutrient_value
 )
-from scrapfishin.hello_fresh import BASE_URL
+from scrapfishin.hello_fresh.const import BASE_URL
 from scrapfishin.schema import Recipe
 from scrapfishin.http import Chrome
 

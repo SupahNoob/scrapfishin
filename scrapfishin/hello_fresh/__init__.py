@@ -1,2 +1,1 @@
-
-BASE_URL = 'https://www.hellofresh.com'
+from scrapfishin.hello_fresh.scraper import scrape
