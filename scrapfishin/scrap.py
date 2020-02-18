@@ -11,12 +11,12 @@ class Scrap:
     """
     Scrap the hungry bandit!
 
-    This is the main entrypoint into the scrapfishin library.
+    This is the main entrypoint into the scrapfishin library. TODO
 
     Attributes
     ----------
     conn_str : str, default 'sqlite:///{some_temp_dir}/scrapfishin.db'
-
+        SQLAlchemy URL that points to your database
     """
     def __init__(self, conn_str: str=None):
         if conn_str is None:
@@ -30,6 +30,7 @@ class Scrap:
 
     def fish(self, site: str, *, persist: bool=True) -> List[Recipe]:
         """
+        TODO
         """
         supported = {
             'hello fresh': hello_fresh,
@@ -52,7 +53,7 @@ class Scrap:
     def prepare(self, *, cuisine=None, n=1):
         """
         """
-        pass
+        NotImplementedError('TODO: tons of options on this one...')
 
     def collect(self, recipes: List[Recipe], follow_parents: bool=False) -> List[Ingredient]:
         """
@@ -73,6 +74,6 @@ class Scrap:
         ingredients = [i for r in recipes for i in r.ingredients]
 
         if follow_parents:
-            ingredients = []
+            raise NotImplementedError('TODO: add logic to find parent recipes')
 
         return ingredients

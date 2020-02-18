@@ -3,6 +3,11 @@ from typing import Dict, List
 from pydantic import BaseModel, HttpUrl, validator
 
 
+# TODO
+#   Need to Understand
+#     https://pydantic-docs.helpmanual.io/usage/models/#orm-mode-aka-arbitrary-class-instances
+#
+
 class LoweredStr(str):
     """
     Ensure database collation sanity by ignoring case.
