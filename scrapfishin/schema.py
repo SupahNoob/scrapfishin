@@ -1,6 +1,9 @@
-from typing import Optional, List
+from typing import ForwardRef, Optional, List
 
 from pydantic import BaseModel, HttpUrl, validator
+
+
+Recipe = ForwardRef('Recipe')
 
 
 class LoweredStr(str):
@@ -52,7 +55,7 @@ class Utensil(Base):
 
 class Ingredient(Base):
     food: LoweredStr
-    # parent_recipe: Recipe
+    parent_recipe: Optional[Recipe]
 
 
 class Measurement(Base):
@@ -117,3 +120,6 @@ class Recipe(Base):
             minutes *= 60
 
         return minutes
+
+
+Ingredient.update_forward_refs()

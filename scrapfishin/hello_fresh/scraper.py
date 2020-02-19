@@ -1,5 +1,7 @@
 from typing import List
+import concurrent.futures as fs
 import functools as ft
+import itertools as it
 import logging
 import time
 import re
@@ -73,7 +75,13 @@ def get_world_cuisines(slug: str='recipes') -> List[str]:
     cuisine_links : List[str]
         a list of all world cuisines pages
     """
-    with Chrome('--ignore-certificate-errors', '--incognito') as driver:
+    opts = [
+        '--ignore-certificate-errors',
+        '--incognito',
+        '--headless',
+        'window-size=1920x1080'
+    ]
+    with Chrome(*opts) as driver:
         driver.get(f'{BASE_URL}/{slug}')
 
         with ActionChains(driver) as actions:
@@ -113,7 +121,13 @@ def get_recipes(slug: str) -> List[str]:
     recipe_links : List[str]
         a list of all recipes found on a page
     """
-    with Chrome('--ignore-certificate-errors', '--incognito') as driver:
+    opts = [
+        '--ignore-certificate-errors',
+        '--incognito',
+        '--headless',
+        'window-size=1920x1080'
+    ]
+    with Chrome(*opts) as driver:
         with ActionChains(driver) as actions:
             driver.get(f'{BASE_URL}/{slug}')
             handle_promo_popup(actions)
@@ -146,7 +160,13 @@ def datatize_recipe(slug: str) -> dict:
     -------
     recipe : Recipe
     """
-    with Chrome('--ignore-certificate-errors', '--incognito') as driver:
+    opts = [
+        '--ignore-certificate-errors',
+        '--incognito',
+        '--headless',
+        'window-size=1920x1080'
+    ]
+    with Chrome(*opts) as driver:
         with ActionChains(driver) as actions:
             driver.get(f'{BASE_URL}/{slug}')
             handle_promo_popup(actions)
@@ -199,6 +219,28 @@ def datatize_recipe(slug: str) -> dict:
     return data
 
 
+def _new_scrape() -> List[Recipe]:
+    from scrapfishin.hello_fresh.unlisted_recipes import spices
+
+    recipes  = [*spices]
+    spices   = [s.title.lower() for s in recipes]
+    cuisines = {}
+
+    with fs.ThreadPoolExecutor(max_workers=10) as ex:
+        for slug in get_world_cuisines():
+            cuisine = re.search(r'.*\/(.*)-.*', slug).group(1)
+            cuisines[cuisine] = ex.submit(get_recipes, slug[1:])
+
+        done, _ = fs.wait(it.chain.from_iterable(cuisines.values()))
+
+    cuisines = {
+        cuis: [f.result() for f in futures if f.done() and not f.cancelled()]
+        for cuis, futures in cuisines.copy().items()
+    }
+
+    return cuisines
+
+
 def scrape() -> List[Recipe]:
     """
     Run through Hello Fresh collecting Recipes.
@@ -223,7 +265,7 @@ def scrape() -> List[Recipe]:
         cuisine = re.search(r'.*\/(.*)-.*', world_slug).group(1)
         log.info(f'scraping {cuisine.title()} recipes')
 
-        for i, recipe_slug in enumerate(get_recipes(world_slug[1:]), start=1):
+        for recipe_slug in get_recipes(world_slug[1:]):
             try:
                 r = datatize_recipe(recipe_slug[1:])
                 r['cuisines'] = [{'region': cuisine}]
@@ -238,6 +280,8 @@ def scrape() -> List[Recipe]:
 
                 r = Recipe(**r)
                 recipes.append(r)
+            except IndexError:
+                log.error(f'malformed ingredient on page: {recipe_slug}')
             except pydantic.ValidationError as e:
                 log.error(f'url: {recipe_slug}\n{e}')
             except AttributeError as e:

@@ -1,16 +1,5 @@
 from scrapfishin.schema import Recipe
 
-__all__ = [
-    'tuscan_heat_spice',
-    'blackening_spice',
-    'smoky_cinammon_paprika_spice',
-    'fall_harvest_spice_blend',
-    'southwest_spice_blend',
-    'tunisian_spice_blend',
-    'steak_spice_blend',
-    'mexican_spice_blend',
-    'zaatar_spice_blend'
-]
 
 _base = {
     'source': 'Hello Fresh',
@@ -156,3 +145,15 @@ zaatar_spice_blend = Recipe.parse_obj({
 # enchilada spice blend
 # taco spice blend
 # cajun spice blend
+
+spices = [
+    tuscan_heat_spice,
+    blackening_spice,
+    smoky_cinammon_paprika_spice,
+    fall_harvest_spice_blend,
+    southwest_spice_blend,
+    tunisian_spice_blend,
+    steak_spice_blend,
+    mexican_spice_blend,
+    zaatar_spice_blend
+]
