@@ -5,7 +5,7 @@ _base = {
     'source': 'Hello Fresh',
     'prep_time': 10,
     'difficulty': 'level 1',
-    'tags': [{'descriptor': 'spice mix'}]
+    'tags': [{'descriptor': 'spice mix'}],
 }
 
 tuscan_heat_spice = Recipe.parse_obj({
@@ -132,6 +132,17 @@ zaatar_spice_blend = Recipe.parse_obj({
     ]
 })
 
+mediterranean_spice_blend = Recipe.parse_obj({
+    **_base,
+    'title': 'Mediterranean Spice Blend',
+    'ingredient_amounts': [
+        {'ingredient': {'food': 'dried oregano'}, 'amount': '2', 'measurement': {'unit': 'teaspoon'}},
+        {'ingredient': {'food': 'dried mint'}, 'amount': '1', 'measurement': {'unit': 'teaspoon'}},
+        {'ingredient': {'food': 'sumac'}, 'amount': '1', 'measurement': {'unit': 'teaspoon'}},
+        {'ingredient': {'food': 'ground coriander'}, 'amount': '1', 'measurement': {'unit': 'teaspoon'}}
+    ]
+})
+
 # TODO: further reading:
 # https://www.reddit.com/r/hellofresh/comments/bawnby/hello_fresh_diy_spice_blends/
 #
@@ -139,7 +150,6 @@ zaatar_spice_blend = Recipe.parse_obj({
 #   FROM ingredient AS i
 #  WHERE i.ingredient LIKE '%spice%'
 #
-# mediterranean spice blend
 # ranch spice
 # fajita spice blend
 # enchilada spice blend
@@ -155,5 +165,6 @@ spices = [
     tunisian_spice_blend,
     steak_spice_blend,
     mexican_spice_blend,
-    zaatar_spice_blend
+    zaatar_spice_blend,
+    mediterranean_spice_blend
 ]

@@ -97,10 +97,10 @@ class Recipe(Base):
     source: str
     glamor_shot_url: Optional[HttpUrl]
     instructions_url: Optional[HttpUrl]
-    allergies: Optional[List[Allergy]]
-    cuisines: Optional[List[Cuisine]]
-    tags: Optional[List[Tag]]
-    utensils: Optional[List[Utensil]]
+    allergies: Optional[List[Allergy]] = []
+    cuisines: Optional[List[Cuisine]] = []
+    tags: Optional[List[Tag]] = []
+    utensils: Optional[List[Utensil]] = []
     ingredient_amounts: List[IngredientAmount]
     # TODO instructions
     # TODO nutrictional_facts: List[NutritionalFact]
